@@ -1,0 +1,223 @@
+---
+title: "STAT 1060 Data Science Foundations"
+subtitle: "Lab 8 Inference about Proportions"
+author: "Student Version"
+#date: "8/12/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=TRUE, out.width="50%")
+```
+
+In today's lab, we will use R function to do inference about proportions. 
+
+* One proportion
+* Difference between two proportions
+* Comparing multiple proportions - Chi-square tests
+
+Let us first review those R functions for inference.
+
+### <span style="color:navy"> R Functions for Inference </span>
+There are three built-in R functions that will conduct normal-based hypothesis tests and confidence intervals for particular scenarios:
+
+|R Function	|Scenario(s)	|Conditions|
+|:--|:-------------|:-----------|
+|`t.test`| One-sample t-test: one quantitative variable <br/> Paired t-test: Difference in two quantitative variables among pairs <br/> Two-sample t-test: Quantitative response variable and binary explanatory variable | Either the quantitative response variable(s) (or differences) need to be approximately normal, or your sample size(s) should be at least 30 (larger if the data are heavily skewed).|
+|`chisq.test` | Chi-squared goodness-of-fit test: Categorical variable <br/> Chi-squared test of independence: Two categorical variables | At least 5 in each cell of the table|
+|`prop.test`| One-sample z-test: Binary variable <br/> Two-sample z-test: Binary response variable and binary explanatory variable | At least 10 "successes" and 10 "failures" in each group| 
+
+### <span style="color:navy"> Test about One Proportion</span>
+
+#### <span style="color:salmon"> The Darwin Data </span>
+Charles Darwin did an experiment comparing the heights of cross- and self-pollinated plants (Zea Mays, or corn, to be precise; see "The effect of cross- and self-fertilization in the plant kingdom", 1876). Enter the data into your R session by copying and pasting the following:
+
+```{r}
+Darwin <- structure(
+      list(Pot = c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4),
+       Crossed = c(23.5, 12, 21, 22, 19.125, 21.5, 22.125, 20.375, 
+                   18.25, 21.625, 23.25, 21, 22.125, 23, 12), 
+          Self = c(17.375, 20.375, 20, 20, 18.375, 18.625, 18.625, 
+                   15.25, 16.5, 18, 16.25, 18, 12.75, 15.5, 18)), 
+         .Names = c("Pot", "Crossed", "Self"), 
+          class = "data.frame", 
+       row.names = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", 
+                      "11", "12", "13", "14", "15"))
+```
+
+The resulting data table should look like this:
+```{r}
+Darwin
+```
+
+Darwin was interested in demonstrating that cross-pollinated plants were healthier than self-pollinated. The standard approach to questions like this one is to frame it as a hypothetical: if there were really no difference between the two groups, what would we expect to see?
+
+To translate this into a question about the binomial distribution, start by converting the pairs of values above to Bernoulli trials. Call it a success (1) if the crossed plant is taller than the self-pollinated plant with which it is paired, and a failure (0) otherwise.
+
+```{r}
+attach(Darwin)
+X <- sum(Crossed > Self)
+X
+```
+
+You should have 13 successes out of the 15 trials. Our hypothetical scenario, known as the null hypothesis, corresponds to the claim that the population proportion of 1's is 1/2. In other words, the cross-pollinated and self-pollinated plants are equally likely to be the taller of the two.
+
+$H_0: p=0.5$ versus $H_a: p>0.5$.
+
+Assuming independence, we have a set of 15 Bernoulli trials, of which 13 were successes.
+
+#### <span style="color:salmon"> The prop.test() function </span>
+The R `prop.test()` function carries out a hypothesis test and a confidence interval for a proportion using the normal approximation to a sample proportion. Note that this approximation is only valid for large numbers of successes and failures, i.e., both np and n(1-p) should be sufficiently large. 
+
+The standard syntax is `prop.test(x, n, p, alt = c('two.sided', 'less','greater'), conf.level=0.95, correct=TRUE)` where 
+
+* `x` is the number of "successes" in the sample
+* `n` is the sample size
+* `p` is the hypothesized population proportion of success.
+* `correct` is a logical indicating whether Yates' continuity correction should be applied where possible.
+
+Try it with Darwin's data:
+```{r}
+prop.test(13,15,p=1/2, alt='g')
+```
+
+##### <span style="color:purple"> Exercise 1. Two-Sided Test </span>
+Conduct a two-sided test, $H_0: p=0.5$ versus $H_a: p \ne 0.5$, and calculate a 90% confidence interval for the population proportion.
+
+```{r}
+
+```
+
+### <span style="color:navy"> Test about Two Proportions</span>
+
+#### <span style="color:salmon"> The Dolphin Data </span>
+Swimming with dolphins can certainly be fun, but is it also therapeutic for patients suffering from clinical depression? To investigate this possibility, researchers recruited 30 subjects aged 18-65 with a clinical diagnosis of mild to moderate depression. 
+
+Observed data: The researchers found that 10 of 15 subjects in the dolphin therapy group showed substantial improvement, compared to 3 of 15 subjects in the control group.
+
+The null hypothesis in this study is that swimming with dolphins does not improve depression symptoms in the population of people aged 18-65 with a clinical diagnosis of mild to moderate depression. 
+
+The dolphin data can be entered in the following way:
+
+```{r}
+dolphin.table <- matrix(c(10, 5, 3, 12), nrow=2, ncol=2, byrow = TRUE, 
+                        dimnames = list(c("Dolphin","Control"), 
+                                        c("Improved","Not Improved")))
+
+# Check to make sure table was created correctly:
+dolphin.table
+```
+
+Test hypotheses: $H_0: p_d = p_c$ versus $H_a: p_d > p_c$
+
+#### <span style="color:salmon"> The prop.test() function </span>
+
+```{r}
+prop.test(dolphin.table, alt='g')
+```
+
+Alternatively, we may enter the arguments of `prop.test` in the following way:
+```{r}
+prop.test(x=c(10,3), n=c(15,15), alt='g')
+```
+
+Instead of reporting a z-statistic, this test reports a chi-squared statistic, which is equivalent to the z-statistic squared.
+
+### <span style="color:navy"> Chi-Square Tests </span>
+#### <span style="color:salmon">Goodness of fit test for a single categorical variable </span>
+
+In this section, we are going to practice summarizing, visualizing, and analyzing categorical data using the `chisq.test` function. We will start with one-way tables and move to two-way tables:
+
+Are the tulip colors in a field equally distributed? Consider the tulip data below from a random sample of tulips in the field:
+
+|Color | Count|
+|:---|--:|
+|Red | 123|
+|White| 102|
+|Yellow| 81|
+
+ Let's summarize and visualize the data.
+ 
+```{r}
+counts <- c(123, 102, 81)
+n <- sum(counts)
+# Sample proportions:
+counts/n
+barplot(counts/n, names.arg = c("Red","White","Yellow"), ylab="Proportion",
+           main = "Observed Distribution of Tulip Colors")
+
+```
+
+It seems that Red is most common, occurring 40% of the time, and yellow least common at 26%. Does this mean tulips in the entire field are not equally distributed? Or did this just happen by chance. Let's test the hypotheses:
+
+* $H_0: p_{red}=p_{white}=p_{yellow}=1/3$
+* $H_a:$ At least two proportions differ.
+
+We can use the `chisq.test` function to do the test:
+```{r}
+chisq.test(counts, p=c(1/3,1/3,1/3), correct=FALSE)
+```
+
+##### <span style="color:purple"> Exercise 2. Goodness-of-Fit Test </span>
+Based on the tulip data above, perform a goodness-of-fit test to determine if the distribution  $p_{red}=0.40, p_{white}=0.35, p_{yellow}=0.25$  is a reasonable fit to the data.
+```{r}
+
+```
+
+#### <span style="color:salmon">Chi-squared tests of independence for two categorical variables </span>
+Returning to the tulip example, suppose we wanted to know whether the distribution of tulip colors differed across three fields, A, B, and C. We already looked at data from field A. Here is a summary of the entire data set:
+
+|Color | A |B |C| 
+|:-|-:|-:|-:|
+|Red | 123 |240 | 100|
+|White|102|200|35|
+|Yellow|81|163|47|
+
+ Let's first visualize the data.
+ 
+```{r}
+red <- c(123,240,100)
+white <- c(102,200,35)
+yellow <- c(81,163,47)
+tulips <- rbind(red, white, yellow)
+tulips
+barplot(tulips, names.arg=c("A","B","C"), col=c("red","white","yellow"),
+            ylab="Frequency", xlab="Field", beside=TRUE,
+            main="Number of tulips by color and field")
+```
+ 
+Note that a barplot of counts is not really a fair comparison since the sample sizes differ across fields. Instead, we'd like to look at the conditional proportions within fields:
+
+```{r}
+# Number of tulips collected in each field
+colSums(tulips)
+tulips.prop <- rbind(red/colSums(tulips), white/colSums(tulips), yellow/colSums(tulips))
+barplot(tulips.prop, names.arg=c("A","B","C"), col=c("red","white","yellow"),
+             ylab="Conditional Proportions", xlab="Field", beside=FALSE,
+             main="Distribution of Colors by Field")
+```
+
+
+The tulip color distribution seems very similar between fields A and B, but C appears to have a larger number of red tulips. Is this due to chance, or do the distributions truly differ?
+
+* $H_0$: Field and tulip color are independent
+* $H_a$: Field and tulip color are dependent
+
+```{r}
+chisq.test(tulips, correct=FALSE)
+```
+These data provide evidence to suggest that the distribution of tulip color is dependent on field.
+
+##### <span style="color:purple"> Exercise 3. Chi-Square Tests </span>
+Calculate the expected counts, the chi-squared test statistic, and the p-value for the previous example without using the `chisq.test` function.
+
+```{r}
+
+```
+
+
+
+
+
+
+

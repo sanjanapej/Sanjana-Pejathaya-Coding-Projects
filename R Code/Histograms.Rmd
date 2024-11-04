@@ -1,0 +1,198 @@
+---
+title: "STAT 1060 Data Science Foundations"
+subtitle: "Homework 3"
+#author: "Instructor Version"
+#date: "8/12/2022"
+output: 
+    html_document
+    #word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=TRUE)
+```
+
+## Instruction
+
+* Total points: 50
+* Make sure you show your code as well as the output of your code.
+
+#### Questions 1-6: Collect your solutions to Exercises 1-6 in Lab 3. 
+
+We will conduct an exploratory data analysis using the WHO life expectancy data set, which contains data of representative health-related factors from 2000 to 2015 for 193 countries. 
+
+Read and attach the data set:
+```{r}
+LifeExp = read.csv("LifeExpectancy.csv",header=T)
+attach(LifeExp)
+```
+
+##### <span style="color:purple"> Exercise 1.(5 points) </span>
+Create a histogram for `Schooling` and choose appropriete set of summary statistics for it (i.e. measures of center and variability).
+
+```{r, echo = TRUE}
+hist(Life.expectancy)
+median(Life.expectancy, na.rm = TRUE)
+mean(Life.expectancy, na.rm = TRUE)
+```
+
+##### <span style="color:purple"> Exercise 2. (5 points)  </span>
+Create a horizontal boxplot for `Schooling` and calculate the 5-number summary for it. Compare the plot with the numeric summary.
+
+``` {r, echo= TRUE}
+
+boxplot(Schooling, horizontal = TRUE, main = "Schooling")
+quantile(Schooling, na.rm= TRUE)
+
+```
+##### <span style="color:purple"> Exercise 3. (5 points) </span>
+Create a pie chart for `Status`.
+
+```{r, echo = TRUE}
+tb_status <- table(Status)
+pie(tb_status)
+
+```
+##### <span style="color:purple"> Exercise 4. (5 points) </span>
+Create a scatterplot for `Life.expectancy` and `Alcohol`. Do you think we can use correlation to quantify the relationship between them? If so, calculate the correlation between them.
+
+```{r, echo = TRUE}
+plot(x=Life.expectancy, y=Alcohol)
+correlation <- cor(x=Life.expectancy, y=Alcohol, use='complete.obs')
+print(correlation)
+
+```
+
+##### <span style="color:purple"> Exercise 5. (5 points) </span>
+Create a scatterplot for `Life.expectancy` and `GDP`. Do you think we can use correlation to quantify the relationship between them? If so, calculate the correlation between them.
+
+
+``` {r, echo = TRUE}
+
+plot(x=Life.expectancy, y=GDP, )
+correlation <- cor(x=Life.expectancy, y=GDP, use='complete.obs')
+print(correlation)
+
+```
+
+##### <span style="color:purple"> Exercise 6. (5 points) </span>
+Modify the last boxplot in lab 3 according the requirements as follows:
+
+1. Add a title "Life Expectancy for Developed and Developing Countries".
+2. Change the x-axis label to "Life Expectancy (year)".
+3. Change the color of the boxplot to light blue.
+
+``` {r, echo = TRUE}
+
+boxplot(Life.expectancy~Status, horizontal=T, 
+        main="Life Expectancy for Developed and Developing Countries",
+        xlab="Life Expectancy (year)",
+        col="lightblue")
+
+```
+##### <span style="color:purple"> Question 7 (4 points)</span>
+All human blood can be "ABO-typed" as one of O, A, B, or AB, but the distribution of the types varies a bit among groups of people. Here is the disbribution of blood types for a randomly chosen person in the United States:
+
+
+|Blood type | A | B | AB | O |
+|:--|:--:|:--:|:--:|:--:|
+|U.S. probability| 0.42 | ? | 0.03 | 0.44|
+
+
+(a) (2 points) What is the probability of type B in the United States?
+
+``` {r, echo= TRUE}
+1- 0.42-0.03-0.44
+
+```
+
+
+
+(b) (2 points) Maria has type B blood. She can safely receive blood transfusions from people with blood types O and B. What is the probability that a randomly chosen person from the United States can donate blood to Maria?
+
+``` {r, echo= TRUE}
+0.11 + 0.44
+
+```
+
+
+##### <span style="color:purple"> Question 8 (6 points)</span>
+The distribution of blood types in Ireland differs from the U.S. distribution given in the previous exercise:
+
+|Blood type | A | B | AB | O |
+|:--|:--:|:--:|:--:|:--:|
+|Ireland probability| 0.35 | 0.10 | 0.03 | 0.52|
+
+(a) (3 points) Choose a person from the U.S. and a person from Ireland at random, independently of each other. What is the probability that both have type O blood?
+
+```{r, echo= TRUE}
+# P(A and B)
+
+0.44 * 0.52
+
+```
+
+(b) (3 points) What is the probability that both have the same blood?
+
+```{r, echo = TRUE}
+# P(A) + P(B) + P(AB) + P(O)
+
+(0.42 * 0.35) + (0.11 * 0.10) + (0.03 * 0.03) + (0.44 * 0.52)
+
+```
+
+
+##### <span style="color:purple"> Question 9 (2 points)</span>
+The probability that an event A will occur is 0.138, and the probability that B will occur is 0.261. The probability that both A and B occur is 0.082. What is the probability that either A or B occurs?
+
+```{r, echo = TRUE}
+
+# P(A U B) = P(A) + P(B) - P(AB)
+
+0.138 + 0.082 - (0.138*0.082)
+
+```
+
+
+##### <span style="color:purple"> Question 10 (8 points)</span>
+In the population of young children eligible to participate in a study of whether or not their calcium intake is adequate, 52\% are 5 to 10 years of age and 48\% are 11 to 13 years of age. For those who are 5 to 10 years of age, 18\% have inadequate calcium intake. For those who are 11 to 13 years of age, 57\% have inadequate calcium intake.
+
+(a) (4 points) Calculate the probability that a randomly selected child from this population has an inadequate intake of calcium. 
+
+```{r, echo=TRUE}
+
+#P(I) = P(I|A) * P(A) + P(I|B) * P(B)
+
+P_A <- 0.52
+P_B <- 0.48
+P_I_given_A <- 0.18
+P_I_given_B <- 0.57
+
+
+P_I <- P_I_given_A * P_A + P_I_given_B * P_B
+
+
+print(P_I)
+
+
+```
+
+
+
+(b) (4 points) Use Bayes' rule to find the probability that a child from this population who has inadequate intake is 11 to 13 years old.
+
+```{r, echo = TRUE}
+#P(B|I) = P(I|B) * P(B)/ P
+
+P_B_given_I <- (P_I_given_B * P_B) / P_I
+
+print(P_B_given_I)
+
+```
+
+Hint: Use R as an efficient calculator for Questions 7 to 10.
+
+```{r}
+detach(LifeExp)
+```
+

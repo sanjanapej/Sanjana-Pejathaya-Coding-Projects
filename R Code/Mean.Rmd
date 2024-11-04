@@ -1,0 +1,157 @@
+---
+title: "STAT 1061 Data Science Foundations"
+subtitle: "Homework 5"
+#author: "Instructor Version"
+#date: "8/12/2022"
+output: 
+    #html_document
+    word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=TRUE)
+```
+
+## Instruction
+
+* Total points: 50
+* Make sure you show your code as well as the output of your code.
+* Due date and time: 11:59 PM, Monday, October 30, 2023.
+
+#### Questions 1-3: Exercises 1-3 in Lab 5
+
+a. Generate 1000 observations from `Uniform(0,1)`. This is equivalent to 1000 samples of size 1. This shows the distribution of the population. 
+b. Generate 1000 random samples of sizes 10, 30, and 100 respectively. 
+c. Calculate the sample mean of each random sample for each sample size.
+d. Create a histogram of the sample means for each sample size.
+
+```{r,out.width="80%"}
+par(mfrow=c(2,2))
+m=1000              # Specify the number of samples
+x_bar=matrix(0,4,m) # x_bar will be used to store all the sample means
+
+n=c(1,10,30,100)      # Sample sizes are 10, 30, and 100. 
+for(i in 1:4){
+  for(j in 1:m){
+    x_bar[i,j]=mean(runif(n[i]))
+  }
+  hist(x_bar[i,],ylab="Relative Frequency",freq=F,main=paste("n=",n[i]),xlab="sample mean")
+}
+```
+
+#### <span style="color:purple"> Exercise 1. (5 points) </span>
+Verify that the mean of sample means is close to the population mean. 
+
+``` {r, echo = TRUE}
+mean(x_bar)
+```
+ 
+
+
+#### <span style="color:purple"> Exercise 2. (5 points)  </span>
+Calculate the standard error of sample means and compare it with the theoretical value $\sigma_x/\sqrt{n}$.
+
+Hint: The variance of Unif(0,1) is 1/12.
+
+``` {r, echo = TRUE}
+population_variance <- 1/12
+
+se_theoretical <- sqrt(population_variance)
+
+se_sample_means <- sqrt(population_variance / n)
+
+se_theoretical
+se_sample_means
+
+```
+
+#### <span style="color:purple"> Exercises 3. (30 points) Exponential and Binomial Distributions </span>
+Now, for the Exp(1) and Binom(10,0.1) distributions, 
+
+a. Simulate 1000 random numbers with 4 sample sizes (1, 10, 30, 100)
+b. Calculate sample means
+c. Create histograms of the sample means
+d. Calculate mean and standard errors of sample means.
+
+To generate $n$ random numbers from Exp(1), use `rexp(n)`. 
+To generate $n$ random numbers from Binom(10,0.1), use `rbinom(n,10,0.1)`.
+
+``` {r, echo = TRUE}
+set.seed(123)
+num_samples <- 1000
+
+sample_sizes <- c(1, 10, 30, 100)
+
+exp_sample_means <- matrix(0, nrow = length(sample_sizes), ncol = num_samples)
+for (i in 1:length(sample_sizes)) {
+  for (j in 1:num_samples) {
+    exp_sample_means[i, j] <- mean(rexp(sample_sizes[i], rate = 1))
+  }
+}
+
+binom_sample_means <- matrix(0, nrow = length(sample_sizes), ncol = num_samples)
+for (i in 1:length(sample_sizes)) {
+  for (j in 1:num_samples) {
+    binom_sample_means[i, j] <- mean(rbinom(sample_sizes[i], size = 10, prob = 0.1))
+  }
+}
+
+
+par(mfrow = c(2, 2))
+
+for (i in 1:length(sample_sizes)) {
+  # Histogram for Exp(1) distribution
+  hist(exp_sample_means[i,], ylab = "Relative Frequency", freq = F, main = paste("Exp(1), n =", sample_sizes[i]), xlab = "Sample Mean")
+  
+  mean_exp <- mean(exp_sample_means[i,])
+  se_exp <- sd(exp_sample_means[i,]) / sqrt(sample_sizes[i])
+  
+  cat("Exp(1), Sample Size n =", sample_sizes[i], "\n")
+  cat("Mean of Sample Means:", mean_exp, "\n")
+  cat("Standard Error:", se_exp, "\n\n")
+}
+
+for (i in 1:length(sample_sizes)) {
+  # Histogram for Binom(10, 0.1) distribution
+  hist(binom_sample_means[i,], ylab = "Relative Frequency", freq = F, main = paste("Binom(10, 0.1), n =", sample_sizes[i]), xlab = "Sample Mean")
+  
+  # Calculate mean and standard error for Binom(10, 0.1) distribution
+  mean_binom <- mean(binom_sample_means[i,])
+  se_binom <- sd(binom_sample_means[i,]) / sqrt(sample_sizes[i])
+  
+  cat("Binom(10, 0.1), Sample Size n =", sample_sizes[i], "\n")
+  cat("Mean of Sample Means:", mean_binom, "\n")
+  cat("Standard Error:", se_binom, "\n\n")
+}
+
+```
+
+
+#### <span style="color:purple"> Exercises 4. (10 points) </span>
+Visualize the Law of Large Numbers
+
+(a) Imitate the code in Lab 5 and visualize the LLN using 5000 Exp(1) random numbers. Note that the mean of Exp(1) distribution is 1.
+
+``` {r, echo = TRUE}
+set.seed(123)
+n <- 5000; x <- rnorm(n); x_bar <- rep(0,n)
+for(i in 1:n){x_bar[i] = mean(x[1:i])}
+plot(x_bar, type="l"); abline(h=0,col=2,lty=2)
+
+```
+
+
+(b) Imitate the code in Lab 5 and visualize the LLN using 5000 Unif(-5,5) random numbers. Note that the mean of Unif(-5,5) is 0.
+
+``` {r, echo =TRUE}
+set.seed(123)
+num_samples <- 5000
+random_numbers <- runif(num_samples, min = -5, max = 5)
+sample_means <- cumsum(random_numbers) / (1:num_samples)
+plot(1:num_samples, sample_means, type = "l", col = "blue", 
+     xlab = "Sample Size", ylab = "Sample Mean", 
+     main = "Law of Large Numbers (LLN) Visualization")
+abline(h = 0, col = "red", lty = 2)
+
+
+```

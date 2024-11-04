@@ -1,0 +1,141 @@
+---
+title: "STAT 1060 Data Science Foundations"
+subtitle: "Homework 4 (Solution)"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=TRUE)
+```
+
+## Instruction
+
+* Total points: 50
+* Make sure you show your code as well as the output of your code.
+
+#### Questions 1-6: Exercises 1-6 in Lab 4.
+
+| Type | R Function | Example|
+|:--|:--|:--|
+|density function | `dnorm(x=, mean=0, sd=1)` | `dnorm(1.5)`|
+|cumulative distribution function | `pnorm(q=, mean=0, sd=1, lower.tail = TRUE)`| `pnorm(1.5, 100, 15)`|
+|quantile function| `qnorm(p=, mean=0, sd=1, lower.tail = TRUE)` | `qnorm(0.95)`|
+|pseudo-random number| `rnorm(n=, mean=0, sd=1)`| `rnorm(100,2,10)`|
+
+
+##### <span style="color:purple"> Exercise 1. (3 points) Calculate $P(Z>4)$ where $Z\sim N(0,1)$.</span>
+
+``` {r, echo = TRUE}
+pnorm(135, mean = 100, sd = 15, lower.tail=FALSE)
+
+```
+
+
+##### <span style="color:purple"> Exercise 2. (3 points) Calculate $P(85 <X < 115)$ where $X\sim N(100,15).$  </span>
+
+```{r, echo=TRUE}
+
+prob_less_than_85 <- pnorm(85, 100, 15)
+prob_less_than_115 <- pnorm(115, 100, 15)
+prob_between_85_and_115 <- prob_less_than_115 - prob_less_than_85
+print(prob_between_85_and_115)
+
+
+```
+
+##### <span style="color:purple"> Exercise 3. (6 points) </span>
+
+Typical nightly hours slept by college students is a normal random variable with $\mu = 7$ and $\sigma = 1.5$. 
+
+(a) What is the probability that a student slept less than 6 hours?
+
+```{r, echo=TRUE}
+ pnorm(6, 7, 1.5)
+```
+
+(b) What is the probability that a student slept more than 12 hours?
+```{r, echo=TRUE}
+ 1 - pnorm(12, 7, 1.5)
+
+```
+##### <span style="color:purple"> Exercise 4. (6 points) Standard Normal Quantile.</span>
+(a) Suppose $P(Z>z)=0.95$, what is the value of $z$?
+```{r, echo = TRUE}
+qnorm(0.95, mean = 100, sd = 15)
+```
+
+(b) What is the $99^{th}$-percentile (or 0.99-quantile) of standard normal distribution?
+```{r, echo = TRUE}
+qnorm(0.99, mean = 100, sd = 15)
+
+
+```
+
+##### <span style="color:purple"> Exercise 5. (3 points) Normal Quantiles.</span>
+In order to be among the top 1% smartest people, what IQ score one needs to have? 
+```{r, echo = TRUE}
+qnorm(0.99, 100, 15)
+
+```
+##### <span style="color:purple"> Exercise 6.(9 points) Normal Random Numbers.</span>
+
+(a) Generate 6 random numbers from $N(100,5)$.
+(b) Generate 5 random numbers from standard normal distribution.
+(c) Generate 10 random numbers from a normal distribution that is centered at -18 with variance equal to 16. 
+
+```{r, echo= TRUE}
+rnorm(6, 100, 5)
+rnorm(5)
+rnorm(10,-18,sqrt(16))
+
+```
+
+
+##### <span style="color:purple"> Question 7. (10 points) Uniform Distributions</span>
+Uniform distribution family also has a set of R functions:
+
+| Type | R Function | Example|
+|:--|:--|:--|
+|density function | `dunif(x, min = 0, max = 1)` | `dunif(0.5)`|
+|cumulative distribution function | `punif(q, min = 0, max = 1, lower.tail=TRUE)`| `punif(1.5, 1, 2)`|
+|quantile function| `qunif(p, min = 0, max = 1, lower.tail=TRUE)` | `qunif(0.95, 0, 2)`|
+|pseudo-random number| `runif(n, min = 0, max = 1)`| `runif(100)`|
+
+Suppose a uniform distribution has the range $(0,2)$. Suppose a random variable $Y\sim Unif(0,2).$
+
+(a) (1 point) By the definition of a density curve, what is the height of the density curve?
+The height of a uniform distribution that ranges between a and b, is 1b−a.
+(b) (3 points) Find $P(Y\ge 1.2)$.
+(c) (3 points) Find $P(0.1<Y<1)$.
+(d) (3 points) Find $P(Y\le 0.15)$.
+
+``` {r, echo = TRUE}
+punif(1.2, 0, 2, lower.tail=FALSE)
+dunif(0.1, 0, 2, F) - dunif(1,0,2,T)
+1 - punif(0.15, min = 0, max = 2, lower.tail = FALSE)
+```
+##### <span style="color:purple"> Question 8. (10 points) Mean and Variance of Random Variables</span>
+Suppose that $X$ is a random variable with mean 30 and standard deviation 4. Also suppose that $Y$ is a random variable with mean 50 and standard deviation 8. Assume that the correlation between $X$ and $Y$ is 0.5. 
+
+(a) (2 points) Find the mean of random variable $Z$ where $Z=5X-3Y$.
+(b) (2 points) Find the mean of random variable $W$ where $W=10X-35$.
+(c) (4 points) Find the variance of random variable $Z$ where $Z=5X-3Y$.
+(d) (2 points) Find the variance of random variable $W$ where $W=10X-35$.
+
+```{r, echo=TRUE}
+# μx+y = μx + μy
+5 *30 + 3 * 50 + 
+10 * 30 - 35 
+
+
+
+
+```
+
+
+
+
+
+
+
+

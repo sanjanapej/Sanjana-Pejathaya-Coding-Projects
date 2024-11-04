@@ -1,0 +1,191 @@
+-c--
+title: "STAT 1060 Data Science Foundations"
+subtitle: "Lab 3 Exploratory Data Analysis"
+author: "Instructor Version"
+#date: "8/12/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=TRUE, out.width="70%")
+```
+
+The goal of this lab is to practice skills in running descriptive statistics and creating graphs using R. Make sure you've read and fully understood lecture slides of Lectures 4 to 9 as this guide tracks closely with the material presented there.
+
+## <span style="color:navy"> Exploratory Data Analysis </span>
+
+We will conduct an exploratory data analysis using the WHO life expectancy data set, which contains data of representative health-related factors from 2000 to 2015 for 193 countries. 
+
+```{r}
+LifeExp = read.csv("LifeExpectancy.csv",header=T)
+names(LifeExp)
+```
+
+#### <span style="color:salmon">Description of some variables</span>
+
+- Life.Expectancy: Life Expectancy in age
+- Status: Developed or developing
+- Alcohol: Alcohol, recorded per capita (15+) consumption (in litres of pure alcohol)               
+- percentage.expenditure: Expenditure on health as a percentage of Gross Domestic Product per capita (%)        
+- Hepatitis.B: Hepatitis B (HepB) immunization coverage among 1-year-olds (%)   
+- Measles: number of reported cases per 1000 population               
+- BMI: Average Body Mass Index of entire population                         
+- GDP: Gross Domestic Product per capita (in USD)                         
+- Population: Population of the country
+- Schooling: Number of years of Schooling (in years)
+
+#### <span style="color:salmon">Original goals of the study</span>
+
+The data-set aims to answer the following key questions:
+
+1. Does various predicting factors which has been chosen initially really affect life expectancy? What are the predicting variables actually affecting life expectancy?
+2. Should a country having a lower life expectancy value(<65) increase its **healthcare expenditure** in order to improve its average lifespan?
+3. How does Infant and Adult **mortality rates** affect life expectancy?
+4. Does life expectancy has positive or negative correlation with **eating habits, lifestyle, exercise, smoking, drinking alcohol** etc.?
+5. What is the impact of **schooling** on the lifespan of humans?
+6. Does Life Expectancy have positive or negative relationship with drinking **alcohol**?
+7. Do **densely populated** countries tend to have lower life expectancy?
+8. What is the impact of **immunization coverage** on life expectancy?
+
+
+#### <span style="color:salmon">Goals of our EDA</span>
+As you can tell that this is a very comprehensive study. In order to be more focused on the R functions that we have learned for descriptive statistics and graphical display, we will only consider the following two questions:
+
+1. What is the impact of `Schooling` on the lifespan of humans?
+2. What is the impact of `Status` on the lifespan of humans?
+
+## <span style="color:navy"> Exploring Single Numeric Variables </span>
+For a single numeric variable, we are interested in estimating their location (center) and variability. To choose the more appropriate set of descriptive statistics, we might need to visualize the data first. 
+
+For example, let us first create a histogram of the response variable -- `Life.Expectancy`:
+```{r, out.width="50%"}
+attach(LifeExp)
+hist(Life.expectancy)
+```
+
+The histogram is left-skewed. So, the median is a better measure of center than the mean.
+
+```{r}
+median(Life.expectancy)
+```
+We got `NA` because there are missing values. To get a valid value, we can choose to ignore the missing value:
+
+```{r}
+median(Life.expectancy, na.rm=TRUE)
+```
+So, the median life expectancy is about 72 years. How about the mean?
+
+```{r}
+mean(Life.expectancy, na.rm=TRUE)
+```
+The mean is only about 69 years, because there are some extreme values around the left tail.
+
+##### <span style="color:purple"> Exercise 1.Create a histogram for `Schooling` and choose appropriete set of summary statistics for it (i.e. measures of center and variability).</span>
+```{r, out.width="50%"}
+hist(Schooling)
+
+```
+
+```{r}
+median(Schooling,na.rm=T)
+mad(Schooling, na.rm=T)
+```
+
+##### <span style="color:purple"> Exercise 2. Create a horizontal boxplot for `Schooling` and calculate the 5-number summary for it. Compare the plot with the numeric summary.</span>
+
+```{r}
+boxplot(Schooling, horizontal=T)
+```
+
+```{r}
+quantile(Schooling, na.rm=T)
+```
+## <span style="color:navy"> Exploring Single Categorical Variables </span>
+Next, let us study the distribution of `Status`. This is a categorical variable with only two values: `developed` and `developing`.
+
+Let us first create a distribution table for `Status`:
+```{r}
+tb_status = table(Status)
+tb_status
+```
+
+To show the proportions instead of counts, we may divide the table by the total number of observations:
+```{r}
+tb_status/length(Status)
+```
+
+There are about 83.6\% of developing countries and 17.4\% of developed countries.
+
+Now, let us create a bar graph to show the distribution:
+```{r, out.width="50%"}
+barplot(tb_status)
+```
+
+##### <span style="color:purple"> Exercise 3. Create a pie chart for `Status`.</span>
+
+```{r, out.width="50%"}
+pie(tb_status)
+```
+
+## <span style="color:navy"> Exploring Two Numeric Variables </span>
+Since we are interested in the relationship between `Schooling` and `Life.expectancy`, let us first create a scatterplot for them.
+```{r, out.width="50%"}
+plot(x=Schooling, y=Life.expectancy)
+```
+
+
+It seems that there is a moderately strong linear positive relationship between these two variables. 
+
+To quantify the linear relationship, we will calculate the correlation coefficient, $r$:
+```{r}
+cor(Schooling, Life.expectancy, use="complete.obs")
+```
+Notice that we chose to use complete observations. The correlation is 0.75, which is consistent with what we have observed from the scatterplot.
+
+##### <span style="color:purple"> Exercise 4. Create a scatterplot for `Life.expectancy` and `Alcohol`. Do you think we can use correlation to quantify the relationship between them? If so, calculate the correlation between them.</span>
+
+
+```{r, out.width="50%"}
+plot(Alcohol, Life.expectancy)
+```
+
+```{r}
+cor(Alcohol, Life.expectancy, use="complete.obs")
+```
+
+##### <span style="color:purple"> Exercise 5. Create a scatterplot for `Life.expectancy` and `GDP`. Do you think we can use correlation to quantify the relationship between them? If so, calculate the correlation between them.</span>
+
+```{r, out.width="50%"}
+plot(GDP, Life.expectancy)
+```
+
+The relationship is not linear, so we should not use correlation to quantify the relationship between these two variables.
+
+
+## <span style="color:navy"> Exploring One Numeric Variable and One Categorical Variable </span>
+Finally, let us study the relationship between `Status` and `Life.expectancy`. Of course, we cannot make conclusion based on the result of EDA. Later on, we will learn how to use hypothesis testing to quantify the evidence from data.
+
+First, side-by-side boxplot is a good tool to compare grouped numeric data:
+```{r}
+boxplot(Life.expectancy~Status, horizontal=T)
+```
+
+Developed country has higher median, smaller range and interquartile range. In general, we may guess that life expectancy in developed country is higher.
+
+##### <span style="color:purple"> Exercise 6. Modify the above boxplot according the requirements as follows:</span>
+
+1. Add a title "Life Expectancy for Developed and Developing Countries".
+2. Change the x-axis label to "Life Expectancy (year)".
+3. Change the color of the boxplot to light blue.
+
+```{r}
+boxplot(Life.expectancy~Status, horizontal=T, 
+        main="Life Expectancy for Developed and Developing Countries",
+        xlab="Life Expectancy (year)",
+        col="lightblue")
+```
+
+```{r}
+detach(LifeExp)
+```
+

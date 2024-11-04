@@ -1,0 +1,151 @@
+---
+title: "STAT 1061 Data Science Foundations"
+subtitle: "Lab 9 ANOVA"
+author: "Instructor Version"
+#date: "8/12/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=TRUE, out.width="70%")
+```
+
+In today's lab, we will practice using R to visualize grouped data and perform analysis of variance (ANOVA) to compare multiple groups.
+
+### <span style="color:navy"> The Titanic Data </span>
+For the examples in this lab, we will use the Titanic data set. This is a data set of 1313 passengers from the voyage of this ship, which contains personal information about each passenger as well as whether they survived the accident or not.
+
+```{r}
+# Import the data set
+titanicData <- read.csv("titanic.csv", stringsAsFactors = TRUE)
+```
+
+To see if the data loads appropriately, we may check the dimension of the data set and the first few rows of it.
+
+```{r}
+dim(titanicData)
+head(titanicData,3)
+colnames(titanicData)
+```
+
+Suppose we are interested in comparing the mean ages among different passenger classes.
+
+### <span style="color:navy"> Visualize the Grouped Data</span>
+Let's first look at the data to get a sense of how well it fits the assumptions of ANOVA. Multiple histogram are useful for this purpose. 
+
+```{r}
+attach(titanicData)
+means = tapply(age, passenger_class, mean, na.rm=T); means
+
+par(mfrow=c(3,1))
+set1 = titanicData[passenger_class=="1st",]
+set2 = titanicData[passenger_class=="2nd",]
+set3 = titanicData[passenger_class=="3rd",]
+hist(set1$age, xlim=c(0,90))
+abline(v=means[1], col=2, lwd=2)
+hist(set2$age, xlim=c(0,90))
+abline(v=means[2], col=2, lwd=2)
+hist(set3$age, xlim=c(0,90))
+abline(v=means[3], col=2, lwd=2)
+```
+
+These data look sufficiently normal and with similar spreads that ANOVA would be appropriate. Notice that in order to quickly check the difference among the sample means, I also added the red vertical lines to mark them.
+
+
+Alternatively, we can use `ggplot()` to make this plot:
+
+```{r}
+library(ggplot2)
+
+ggplot(titanicData, aes(x = age)) +   
+  geom_histogram() + 
+  facet_wrap(~ passenger_class, ncol = 1) 
+```
+
+##### <span style="color:purple"> Exercise 1. Side-by-Side Boxplot </span>
+Create a side-by-side boxplot to compare the age distributions among passenger classes. 
+
+Note that boxplots will not show the means. Instead, only the medians will be displayed. Remember, in ANOVA, our goal is the compare means among groups. So, make sure that you mark the sample means in the boxplot.
+
+
+```{r,out.width="60%"}
+   
+```
+
+
+
+### <span style="color:navy"> ANOVA </span>
+Analysis of variance (or ANOVA) is not quite as simple in R as one might hope. Doing ANOVA takes at least two steps. 
+
+1. We fit the ANOVA model to the data using the function `lm()`. This step carries out a bunch of intermediate calculations. 
+2. We use the results of first step to do the ANOVA calculations and place them in an ANOVA table using the function `anova()`. 
+
+The function name `lm()` stands for "linear model"; this is actually a very powerful function that allows a variety of calculations. One-way ANOVA is a type of linear model.
+
+#### <span style="color:salmon"> The lm() function</span>
+The function `lm()` needs a formula and a data frame as arguments. The formula is a statement specifying the "model" that we are asking R to fit to the data. A model formula always takes the form of a response variable, followed by a tilde(`~`), and then at least one explanatory variable. 
+
+For example, to compare differences in mean age among passenger classes on the Titanic, this formula is
+
+```
+age ~ passenger_class
+```
+
+This formula tells R to "fit" a model in which the ages of passengers are grouped by the variable passenger_class.
+
+The name of the data frame containing the variables stated in the formula is the second argument of `lm()`. 
+
+Finally, to complete the `lm()` command, it is necessary to save the intermediate results by assigning them to a new object, which `anova()` can then use to make the ANOVA table. For example, here we assign the results of `lm()` to a new object named "titanicANOVA":
+
+```{r}
+titanicANOVA <- lm(age ~ passenger_class, data = titanicData)
+```
+
+#### <span style="color:salmon"> The anova() function</span>
+
+The function `anova()` takes the results of `lm()` as input and returns an ANOVA table as output:
+
+```{r}
+anova(titanicANOVA)
+```
+
+This table shows the results of a test of the null hypothesis that the mean ages are the same among the three groups. The P-value is very small, and so we reject the null hypothesis of no differences in mean age among the passenger classes.
+
+##### <span style="color:purple"> Exercise 2. ANOVA </span>
+Suppose you are interested in comparing the mean age among different groups of `embarked`. Note that there are only three locations to embark:
+
+```{r}
+unique(embarked)
+```
+Perform an ANOVA test to test the following hypotheses:
+
+* $H_0$: Mean ages are all the same among all `embarked` groups.
+* $H_a$: Mean ages are not all the same among all `embarked` groups.
+
+What is your conclusion?
+
+```{r}
+
+```
+
+### <span style="color:navy"> Permutation Test for ANOVA </span>
+In Lecture 32, we have learned that the `aovp` function in the `lmPerm` package computes a permutation version of ANOVA test.
+
+```{r, warning=FALSE}
+library(lmPerm)
+anova_perm <- aovp(age ~ passenger_class, data=titanicData)
+summary(anova_perm)
+```
+
+##### <span style="color:purple"> Exercise 3. Permutation test for ANOVA </span>
+Perform a permutation test for the hypotheses in Exercise 2. What is your conclusion?
+
+```{r}
+library(lmPerm)
+
+```
+
+```{r}
+detach(titanicData)
+```
+

@@ -1,0 +1,153 @@
+---
+title: "STAT 1060 Data Science Foundations"
+subtitle: "Homework 7"
+#author: "Instructor Version"
+#date: "8/12/2022"
+output: 
+    #html_document
+    word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=TRUE)
+```
+
+## Instruction
+
+* Total points: 50
+* Make sure you show your code as well as the output of your code.
+* Due date and time: 11:59 PM, Friday, November 17, 2023.
+
+#### Questions 1-4: Exercises in Lab 6 and Lab 7
+The primary diagnosis for anorexia is a weight that is less than 85% of what is considered normal for that person's height and age. In this population of patients, researchers consider a patient anorexic if his or her weight is lower than 90 lbs. 
+
+Read this data set into your R session:
+```{r}
+Anorexia <- read.table("/Users/SanjanaPejathaya/Downloads/Anorexia (1).txt", header=TRUE)
+dim(Anorexia)
+```
+
+The columns `Before` and `After` are the weights of the patients before and after the treatments, respectively. The last column `Y` is the difference of weights: `After - Before`. 
+
+#### <span style="color:purple"> Exercise 1. (5 points) One-Sample t-Test  </span>
+Question: Is there evidence that the patients are anorexic after treatment? Let $\alpha=0.05$.
+
+```{r, echo = T}
+Fam <- Anorexia[Anorexia$Therapy == "Family", ]
+dim(Fam)
+
+t.test(Fam$Y, alternative="greater", mu = 0, conf.level = 0.95)
+
+```
+
+#### <span style="color:purple"> Exercise 2. (10 points) Paired t-Test  </span>
+Question: Was the average weight gain in the `Cog/Behav` group large enough to provide evidence that the `Cog/Behav` treatment worked? Let $\alpha=0.05$.
+
+```{r, echo=T}
+t.test(Fam$After, Fam$Before, alternative="greater", paired = TRUE)
+```
+
+#### <span style="color:purple"> Exercise 3. (10 points) Two-Sample t-Tests  </span>
+Test the following hypotheses:
+
+* H0: "The true mean weight gain is equal between the `Cog/Behav` and `Control` treatments" 
+* Ha: "The true mean weight gain is greater on the `Cog/Behav` treatment than the Control". 
+
+```{r, echo=T}
+CogBehav.Fam <- Anorexia$Y[ Anorexia$Therapy == "Cog/Behav" ]
+Control.Cont <- Anorexia$Y[ Anorexia$Therapy == "Control" ]
+
+t.test(CogBehav.Fam, Control.Cont, alternative="greater")
+
+```
+The test is significant since the p-value is 0.05232. We can conclude that the Cog/Behav treatment is effective at significance level, say, 0.01.
+
+#### <span style="color:purple"> Exercise 4. (10 points)  Permutation A/B Test  </span>
+
+To apply a permutation test, we need a function to randomly assign the 36 times to the two groups.
+
+```{r}
+perm_fun <- function(x, nA, nB)
+{
+  n <- nA + nB
+  idx_b <- sample(1:n, nB)
+  idx_a <- setdiff(1:n, idx_b)
+  mean_diff <- mean(x[idx_b]) - mean(x[idx_a])
+  return(mean_diff)
+}
+```
+
+```{r, echo = T}
+Y1 = Anorexia$Y[ Anorexia$Therapy != "Cog/Behav"]
+Gains.Fam <- Anorexia$Y[ Anorexia$Therapy == "Family" ]
+Gains.Cont <- Anorexia$Y[ Anorexia$Therapy == "Control" ]
+nA = length(Gains.Fam)
+nB = length(Gains.Cont)
+
+```
+
+Calling this function R = 1,000 times leads to a distribution of differences. 
+
+Test the following hypotheses using a permutation test:
+
+* H0: "The true mean weight gain is equal between the `Cog/Behav` and `Control` treatments" 
+* Ha: "The true mean weight gain is greater on the `Cog/Behav` treatment than the Control".
+
+Use significance level $\alpha=0.01$. Set the seed to be 99.
+
+```{r, echo = TRUE}
+
+set.seed(100)
+# Call the perm_fun 1000 times to get 1000 mean differences
+perm_diffs <- rep(0, 1000)
+for (i in 1:1000) {
+perm_diffs[i] = perm_fun(Y1, nA, nB)
+}
+# Calculate the "p-value"
+mean_diff = mean(Gains.Fam)-mean(Gains.Cont)
+mean(perm_diffs > mean_diff)
+
+```
+
+
+#### <span style="color:purple"> Question 5. (15 points) Two-Sample t-Tests (Pooled)  </span>
+(a) (5 points) Create a Q-Q plot for `Y` in the `Family` group and a Q-Q plot for the `Control` group. Are they approximately normal?
+
+```{r, echo=TRUE}
+#family_data <- subset(Anorexia, Group == "Family")
+
+qqnorm(Fam$Y)
+qqline(Fam$Y, col = 2) 
+
+# Label the plot
+title("Q-Q Plot for Family Group")
+
+#control_data <- subset(Anorexia, Group == "Control")
+
+# Create Q-Q plot for the 'Control' group
+qqnorm(Control.Cont)
+qqline(Control.Cont, col = 2)  # Add a reference line
+
+# Label the plot
+title("Q-Q Plot for Control Group")
+```
+
+(b) (5 points)  Conduct a equal-variance test using the `var.test` function. Can we conclude that the family group and control group have different variance?
+
+```{r, echo=T}
+var_test_result <- var.test(Fam$Y, Control.Cont)
+
+print(var_test_result)
+
+```
+(c) (5 points)  Conduct a pooled t test see whether there is significant evidence that the family treatment works. Let $\alpha=0.01$.
+
+```{r, echo =T}
+
+pooled_t_test_result <- t.test(Fam$Y, Control.Cont, var.equal = TRUE)
+
+# Print the result
+print(pooled_t_test_result)
+
+```
+Since the p-value is less than the chosen significance level, 0.002491<0.01, there is significant evidence that we can reject the null hypotheses, suggesting that the family treatment works. 

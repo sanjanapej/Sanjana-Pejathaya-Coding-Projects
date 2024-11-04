@@ -1,0 +1,172 @@
+---
+title: "Homework Assignment 1: R Basics" 
+subtitle: "STAT 1060: Data Science Foundations (Fall 2023)"
+output:
+#  pdf_document: default
+#    fig_height: 5
+#    fig_width: 7
+#   html_document:
+#    fig_height: 5
+#    fig_width: 7
+   word_document:
+#    fig_height: 3
+#     fig_width: 5
+---
+
+```{r, setup, include=FALSE}
+require(mdsr)   # Load additional packages here 
+require(tidyr)
+require(tm)
+require(wordcloud)
+
+knitr::opts_chunk$set(
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+```
+
+
+### Instruction
+
+* Total points: 50
+* Make sure you show your code as well as the output of your code.
+* Due Date and Time: 11:59 PM, Friday, September 15, 2023.
+
+### 1. Assignments (10 points) 
+##### 1) (2 points) Assign the letter "A" to a variable called `x`.
+##### 2) (2 points) Assign the value 2022 to a variable called `year`.
+##### 3) (2 points) Assign the letter logic value "TRUE" to a variable called `y`.
+##### 4) (2 points) Let a new variable `z` be equal to `x`. Show the value of z.
+##### 5) (2 points) Try to add `year` and `y` together. What do you get?
+
+
+``` {r,echo =TRUE}
+x = "A"; x
+year = 2022; year
+y = TRUE; y
+z = x; z
+year + y 
+```
+
+### 2. Vectors (10 points)
+##### 1) (3 points) Create a vector as follows:
+```{r,echo=FALSE}
+c("Statistics", "Math", "CS", "Data Science")
+
+```
+
+
+```{r, echo = TRUE}
+subjects = c('Statistics', 'Math', 'CS', 'Data Science'); subjects
+```
+
+
+
+##### 2) (3 points) Create a vector as follows using `seq()`:
+```{r,echo=FALSE}
+seq(-100,0,10)
+```
+```{r, echo=TRUE}
+seq(-100,0, 10)
+```
+##### 3) (4 points) Create a vector as follows using `rep()`:
+```{r,echo=FALSE}
+rep(c('A','C','D'), 3)
+```
+```{r,echo=TRUE}
+v = c("A","C","D")
+rep(v,3) 
+```
+
+### 3. Errors (10 points)
+For each of the following assignment statements, describe the error (or note why it does not generate an error).
+
+```{r, eval=FALSE}
+result1 = log 10
+result2 == "Hello to you!"
+3result <- "Hello to you"
+result4 <- Hello to you
+result5 <- date()
+```
+result1 = log 10
+  It states an unexpected numeric constant 
+result2 == "Hello to you!"
+  Error: object 'result2' not found
+3result <- "Hello to you"
+  Error: unexpected symbol in "3result"
+result4 <- Hello to you 
+  Error: unexpected symbol in "result4 <- Hello to"
+result5 <- date()
+  This line worked because the variable was defined correctly. 
+
+### 4. Matrices (10 points)
+##### 1) (4 points) Create matrices as follows by writing code. Call them `M1` and `M2`, respectively. 
+\ \  
+```{r,echo=FALSE}
+a <- 1:12
+M1 <- matrix(a,3,4)
+print(M1)
+M2 <- matrix(a,3,4,byrow=TRUE)
+print(M2)
+```
+
+```{r, echo= TRUE}
+M1 = matrix(1:12,3,4); M1
+
+M2 = matrix(1:12,3,4, byrow = T); M2
+```
+
+##### 2) (2 points) Extract the value at the 2nd row and 4th column of `M1`.
+
+    # value is 11
+
+##### 3) (2 points) Extract the values in the 1st row in `M1`. 
+
+    # values from 1st row, M1 = (1,4,7,10)
+
+##### 4) (2 points) Extract the values in the 2nd column in `M2`.
+
+    # values from the 2nd column, M2 = (2,6,10)
+
+### 5. Data Frames (10 points)
+##### 1) (2 points) Create a data frame as follows:
+```{r,echo=FALSE}
+Name <- c("Alice","Betty","Caitlyn","Donna","Ella")
+Year <- c("1","2","2","4","3")
+GPA <- c(3.41, 3.53,3.32,3.67,4.00)
+Students <- data.frame(Name,Year,GPA)
+Students
+```
+
+```{r, echo=TRUE}
+Name <- c("Alice", "Betty", "Caitlyn", "Donna", "Ella")
+Year <- c(1, 2, 3, 4, 3)
+GPA <-c(3.41, 3.53, 3.32, 3.67, 4.00)
+
+df <- data.frame(Name, Year,GPA)
+
+print (df)
+
+```
+
+##### 2) (2 points) Use column name to extract the names of students. 
+
+Column name has been defined as "Name"
+
+##### 3) (2 points) Select the information about Ella.
+
+ Ella is in her 3rd year with a GPA of 4.00.
+
+##### 4) (2 points) List name(s) of students whose GPA is lower than 3.5.
+
+* Alice
+* Caitlyn
+
+##### 5) (2 points) List the GPA of all 3rd-year students.
+
+* Caitlyn 
+  GPA = 3.32 GPA
+
+
+
+
+

@@ -1,0 +1,165 @@
+---
+title: "STAT 1060 Data Science Foundations"
+subtitle: "Lab 4 Normal Functions in R"
+#date: "8/12/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=TRUE, out.width="70%")
+```
+
+The goal of this lab is to explore normal functions built-in R. In Lectures 13 and 14, we have studied the normal distribution family. 
+
+In today's lab, we will learn to use R functions to 
+
+1. Show the density curve of a normal distribution;
+2. Calculate probabilities related to normal distributions;
+3. Calculate percentiles (quantiles) of a normal distribution;
+4. Generate random numbers from a normal distribution;
+
+### <span style="color:navy"> Normal Distributions </span>
+Recall that a normal distribution has two parameters: $\mu$ and $\sigma$, and if a random variable follows a normal distribution, it is usually denoted by
+$$X\sim N(\mu,\sigma)$$
+where $\mu$ and $\sigma$ are the mean and standard deviation of the distribution of $X$, $x\in (-\infty,+\infty)$. 
+
+#### <span style="color:salmon">Density Function</span>
+The density function of $N(\mu,\sigma)$ distribution is:
+$$f(x)=\frac{1}{\sqrt{2\pi}\sigma}\exp\left\{{-\frac{(x-\mu)^2}{2\sigma^2}}\right\}$$
+
+A special case of normal distribution: Standard Normal, $Z\sim N(0,1)$, with probability density function (pdf):
+$$f(z)=\frac{1}{\sqrt{2\pi}}e^{-\frac{z^2}{2}}$$
+
+#### <span style="color:salmon">Cumulative Probability Function (cdf)</span>
+The CDF of a normal distribution is defined as
+$F(x)=P(X\le x) =\int_{-\infty}^{x}f(t)dt$
+
+### <span style="color:navy"> Built-in Functions in R </span>
+The standard distributions that are commonly used in model-building and statistical tests have been built in `R`, and it can therefore completely replace the traditional statistical tables.
+
+Four fundamental items can be calculated for a statistical distribution:
+
+- Probability density function (pdf) or probability mass function (pmf)
+- Cumulative probability distribution function (cdf)
+- Quantiles (percentiles)
+- Pseudo-random numbers
+
+For all distributions implemented in `R`, there is a function for each of the four items listed above.
+
+For example, for the normal distribution, these are named `dnorm`, `pnorm`, `qnorm`,\  and `rnorm`.
+
+| Type | R Function | Example|
+|:--|:--|:--|
+|density function | `dnorm(x, mean=0, sd=1)` | `dnorm(1.5)`|
+|cumulative distribution function | `pnorm(q, mean=0, sd=1, lower.tail = TRUE)`| `pnorm(1.5, 100, 15)`|
+|quantile function| `qnorm(p, mean=0, sd=1, lower.tail = TRUE)` | `qnorm(0.95)`|
+|pseudo-random number| `rnorm(n, mean=0, sd=1)`| `rnorm(100,2,10)`|
+
+#### <span style="color:salmon">The Normal Distribution (1): Density Function </span>
+
+The density for a continuous distribution is a measure of the relative probability of "getting a value close to x". The probability of getting a value in a particular interval is the area under the corresponding part of the curve. 
+The density function is likely the least used in practice, but if you want to draw the well-known bell curve of the normal distribution, then it can be done like this:
+
+```{r,fig.height=4}
+par(mfrow=c(1,2))
+x <- seq(-4,4,0.1)
+plot(x, dnorm(x), type="l", ylab="f(x)",lwd=2)
+y <- seq(0,16,0.1)
+plot(y, dnorm(y, mean=8, sd=2),, type="l", ylab="f(y)",lwd=2,col=2)
+```
+
+Note that a layout with two plots side by side is specified using the `mfrow` graphical parameter. It should be read as "multi-frame, rowwise, 1-by-2 layout".
+
+
+
+#### <span style="color:salmon">The Normal Distribution (2): Cumulative Distribution Function </span>
+
+The cumulative distribution function is defined as $F(x)=P(X\le x).$ For the normal distribution, 
+$$F(x)=\int_{-\infty}^x \frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(x-\mu)^2}{2\sigma^2}} dx $$
+
+In `R`, we can use the `pnorm` function to calculate the cumulative probability. For example, find $P(Z<-2):$
+
+```{r}
+pnorm(-2)
+```
+
+##### <span style="color:purple"> Exercise 1. Calculate $P(Z>4)$ where $Z\sim N(0,1)$.</span>
+
+
+Similar to `dnorm` function, it is possible to use `pnorm` function to find cumulative probability of **any** normal distribution. 
+
+For example, suppose $X\sim N(100,15),$ find the probability that $P(X>135).$
+```{r}
+pnorm(135, mean = 100, sd = 15, lower.tail=FALSE)
+```
+
+##### <span style="color:purple"> Exercise 2. Calculate $P(85 <X < 115)$ where $X\sim N(100,15).$  </span>
+
+
+How does the cumulative distribution function look like?
+```{r,fig.height=4}
+par(mfrow=c(1,2))
+x <- seq(-4,4,0.1)
+plot(x, pnorm(x), type="l", ylab="F(x)",lwd=2)
+y <- seq(0,16,0.1)
+plot(y, pnorm(y, mean=8, sd=2),, type="l", ylab="F(y)",lwd=2,col=2)
+```
+
+##### <span style="color:purple"> Exercise 3. </span>
+
+Typical nightly hours slept by college students is a normal random variable with $\mu = 7$ and $\sigma = 1.5$. 
+
+(a) What is the probability that a student slept less than 6 hours?
+
+(b) What is the probability that a student slept more than 12 hours?
+
+#### <span style="color:salmon">The Normal Distribution (3): Quantiles/Percentiles </span>
+
+The quantile (percentile) function is the inverse of the cumulative distribution function. The **$p$-quantile** (or $p$-percentile) is the value with the property that there is probability $p$ of getting a value less than or equal to it, i.e. if $x$ is the $p$-quantile, then it must be true that
+$$P(X<x)=p$$
+The standard normal table contains typical $z$ values and corresponding cumulative probabilities, $p$. Actually, each of these $z$ values is the corresponding $p$-percentile. Given a cumulative probability, $p$, we can find the corresponding $z$ value in the table. In `R`, we may use `qnorm` function.
+
+For example, if $F(z)=0.66,$ then what is the value of $z?$ This question is actually asking about the $66^{th}$-percentile of standard normal distribution.
+```{r}
+qnorm(0.66)
+```
+This implies that $P(Z<0.424631)=0.66$.
+
+##### <span style="color:purple"> Exercise 4. Standard Normal Quantile.</span>
+
+(a) Suppose $P(Z>z)=0.95$, what is the value of $z$?
+(b) What is the $99^{th}$-percentile (or 0.99-quantile) of standard normal distribution?
+
+#### Example: IQ
+IQ for randomly chosen adult is a normal random variable $X$ with $\mu=100$ and $\sigma=15.$ In order to be among the top 5% smartest people, what IQ score one needs to have?
+
+We are looking for an $x$ value such that $P(X>x) = 0.05,$ i.e. $P(X<x)=0.95.$ Therefore, $x$ is the $95^{th}$ percentile of $X.$
+
+```{r}
+qnorm(0.95, mean = 100, sd = 15)
+```
+
+##### <span style="color:purple"> Exercise 5. Normal Quantiles.</span>
+In order to be among the top 1% smartest people, what IQ score one needs to have? 
+
+
+#### <span style="color:salmon">The Normal Distribution (4): Random Numbers </span>
+
+Although it sounds like a contradiction in terms to generate random numbers on a computer since its results are supposed to be predictable and reproducible, it is possible to generate sequence of "pseudo-random" numbers, which for practical purposes behave **as if they were drawn randomly**.
+
+In professional statistics, these "pseudo-random" numbers are used to create simulated data sets in order to study the accuracy of mathematical approximation and the effects of assumptions being violated. 
+
+To generate normal random numbers, we will use `rnorm` function.
+
+There are three arguments in `rnorm`. The first one specifies the number of random numbers to generate, and the second and third are the mean and standard deviation, which, by default, are 0 and 1. For example,
+```{r}
+rnorm(5)      # generate 5 numbers from standard normal dist.
+rnorm(5,5,2)  # generate 5 numbers from a normal dist. with mean=5 and sd=2.
+```
+
+##### <span style="color:purple"> Exercise 6. Normal Random Numbers.</span>
+
+(a) Generate 6 random numbers from $N(100,5)$.
+(b) Generate 5 random numbers from standard normal distribution.
+(c) Generate 10 random numbers from a normal distribution that is centered at -18 with variance equal to 16. 
+

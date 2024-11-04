@@ -1,0 +1,213 @@
+---
+title: "STAT 1060 Data Science Foundations"
+subtitle: "Homework 8"
+#author: "Instructor Version"
+#date: "8/12/2022"
+output: 
+    #html_document
+    word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=TRUE)
+```
+
+## Instruction
+
+* Total points: 50
+* Make sure you show your code as well as the output of your code.
+* Due date and time: 11:59 PM, Thursday, November 30, 2023.
+
+#### Questions 1-3: Exercises 1-3 in Lab 8
+
+##### <span style="color:purple"> Exercise 1. Two-Sided Test (5 points)</span>
+Charles Darwin did an experiment comparing the heights of cross- and self-pollinated plants (Zea Mays, or corn, to be precise; see "The effect of cross- and self-fertilization in the plant kingdom", 1876).
+
+Darwin was interested in demonstrating that cross-pollinated plants were healthier than self-pollinated. It turned out that there are 13 successes out of the 15 trials.
+
+```{r}
+Darwin <- structure(
+      list(Pot = c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4),
+       Crossed = c(23.5, 12, 21, 22, 19.125, 21.5, 22.125, 20.375, 
+                   18.25, 21.625, 23.25, 21, 22.125, 23, 12), 
+          Self = c(17.375, 20.375, 20, 20, 18.375, 18.625, 18.625, 
+                   15.25, 16.5, 18, 16.25, 18, 12.75, 15.5, 18)), 
+         .Names = c("Pot", "Crossed", "Self"), 
+          class = "data.frame", 
+       row.names = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", 
+                      "11", "12", "13", "14", "15"))
+```
+
+Conduct a two-sided test, $H_0: p=0.5$ versus $H_a: p \ne 0.5$, and calculate a 90% confidence interval for the population proportion.
+
+```{r, echo =TRUE}
+
+# Extracting the relevant data
+crossed_data <- Darwin$Crossed
+
+# Conduct a two-sided test for the population proportion
+# Standard Syntax ->  prop.test(x, n, p, alt = c('two.sided', 'less','greater'), conf.level=0.95, correct=TRUE
+test_result <- prop.test(sum(crossed_data > 0.5), length(crossed_data), p = 0.5, alternative = "two.sided", conf.level = 0.9, correct=TRUE)
+
+# Print the test result
+print(test_result)
+
+
+```
+
+##### <span style="color:purple"> Exercise 2. Goodness-of-Fit Test  (5 points) </span>
+Consider the tulip data below from a random sample of tulips in the field:
+
+|Color | Count|
+|:---|--:|
+|Red | 123|
+|White| 102|
+|Yellow| 81|
+
+ 
+```{r}
+counts <- c(123, 102, 81)
+```
+
+Based on the tulip data above, perform a goodness-of-fit test to determine if the distribution  $p_{red}=0.40, p_{white}=0.35, p_{yellow}=0.25$  is a reasonable fit to the data. Let $\alpha=0.05.$
+
+```{r, echo = TRUE}
+x <- sum(counts)
+# Sample proportions:
+counts/x
+# Goodness of fit chi square test
+chisq.test(counts, p=c(1/3,1/3,1/3), correct=FALSE)
+
+```
+Since p-value < significane level, we reject the null hypotheses. 
+##### <span style="color:purple"> Exercise 3. Chi-Square Tests  (20 points) </span>
+Suppose we wanted to know whether the distribution of tulip colors differed across three fields, A, B, and C. We already looked at data from field A. Here is a summary of the entire data set:
+
+|Color | A |B |C| 
+|:-|-:|-:|-:|
+|Red | 123 |240 | 100|
+|White|102|200|35|
+|Yellow|81|163|47|
+
+ 
+```{r}
+red <- c(123,240,100)
+white <- c(102,200,35)
+yellow <- c(81,163,47)
+tulips <- rbind(red, white, yellow)
+tulips
+```
+ 
+In Lab 8, we conducted a chi-square test:
+
+* $H_0$: Field and tulip color are independent
+* $H_a$: Field and tulip color are dependent
+
+```{r}
+chisq.test(tulips, correct=FALSE)
+```
+
+These data provide evidence to suggest that the distribution of tulip color is dependent on field.
+
+Calculate the following without using the `chisq.test` function.
+
+(a) (10 points) The expected counts; 
+(b) (5 points) The chi-squared test statistic;
+(c) (5 points) The p-value for the previous example.
+
+```{r, echo= TRUE}
+# (a)
+# Calculating the expected probabilities
+expected_probs <- c(0.40, 0.35, 0.25)
+
+# Calculating the expected counts manually
+
+expected_counts <- expected_probs * rowSums(tulips)
+
+print("Expected Counts:")
+print(expected_counts)
+
+#(b)
+# Calculating the chi-squared statistic manually 
+
+chi_squared_stat <- sum((tulips - expected_counts)^2 / expected_counts)
+
+print("Chi-Squared Test Statistic:")
+print(chi_squared_stat)
+
+
+#(c)
+# Calculating the p-value manually 
+
+df <- (nrow(tulips) - 1) * (ncol(tulips) - 1)
+
+# Calculate the p-value
+p_value <- 1 - pchisq(chi_squared_stat, df)
+
+
+print("P-value:")
+print(p_value)
+
+```
+
+##### <span style="color:purple"> Question 4. (5 points) </span>
+The function `chisq.test` can be used to do a resampled chi-square test in R. Read Lecture 29 slides for more details. Conduct a resampled chi-square test for the tulips data. Let $\alpha=0.05$. What is your conclusion?
+```{r, echo=TRUE}
+
+chisq.test(tulips, simulate.p.value=TRUE)
+
+```
+Since the p-value < significance level, 0.001499 < 0.05, we can reject the null hypotheses. 
+
+##### <span style="color:purple"> Question 5. (5 points) </span>
+A study of exergaming practiced by students from grades 10 and 11 in Montreal, Canada, examined many factors related to participation in exergaming. 
+
+* Of the 358 students who reported that they stressed about their health, 29.9% said that they were exergaming. 
+* Of the 851 students who reported that they did not stress about their health, 20.8% said that they were exergamers.
+
+Use a large-sample z-test to compare the proportions. Let $\alpha=0.05$. What is your conclusion?
+
+Hint: use `prop.test`
+
+```{r, echo=TRUE}
+
+n_stressed <- 358
+p_stressed_exergaming <- 0.299
+
+n_not_stressed <- 851
+p_not_stressed_exergaming <- 0.208
+
+# z-test for proportions
+test_result <- prop.test(c(n_stressed * p_stressed_exergaming, n_not_stressed * p_not_stressed_exergaming),
+                         c(n_stressed, n_not_stressed),
+                         alternative = "two.sided", correct = FALSE)
+
+print(test_result)
+
+
+```
+Since the p-value < significance level, we can reject the null hypotheses. 
+
+##### <span style="color:purple"> Question 6. (10 points) What is wrong? </span>
+Explain what is wrong with each of the following:
+
+1. You can use a significance test to evaluate the hypothesis $H_0: \hat p = 0.3$ versus $H_a: \hat p \ne 0.3$.
+
+  The alternative hypothesis is providing an estimated value. This is not correct as it hsould provide a specific value. 
+
+2. The large-sample significance test for a population proportion is based on a $t$ test.
+
+  This is incorrect because usually a t test is more commonly used when dealing with means and requires asusmptions. Rather they should use a z-test here. 
+
+3. A student project used a confidence interval to describe the results in a final report. The confidence level is 115%.
+
+  The confidence level used here is not a correct value. IT needs to be a level between 0% and 100%. 
+
+4. If the p-value for a significance test is 0.2, we can conclude that the null hypothesis has a 20% chance of being true.
+
+  p-value does not represent the probability of an event occurring. The p-value is the probability of observing a test statistic as more extreme than what was observed. However this is absed of the assumption that the null hypothesis is true. 
+
+5. If two sample proportions are equal, then the sample counts are equal.
+
+  The equality of sample proportions does not imply the equality of sample counts.
+

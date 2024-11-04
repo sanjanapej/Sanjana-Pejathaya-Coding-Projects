@@ -1,0 +1,243 @@
+---
+title: "STAT 1060 Data Science Foundations"
+subtitle: "Lab 5 Other Distributions, CLT and LLN"
+author: "Instructor Version"
+#date: "8/12/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=TRUE, out.width="70%", cache=T)
+```
+
+R has four built-in functions for each probability distribution, beginning with a "d", "p", "q", or "r" and followed by the name of the distribution. In Lab 4, we focused on the normal distribution family. Today, we will continue to explore other probability distributions and their built-in functions.  
+
+### <span style="color:navy"> Other Probability Distributions </span>
+The two main types of random variables are discrete and continuous. 
+
+- A random variable is discrete if you can enumerate all possible values of the variable. 
+- A random variable is continuous if it can take any value in an interval of the real line.
+
+#### <span style="color:salmon">Discrete Distributions</span>
+The R functions for several discrete distributions are:
+
+|Discrete Distribution<br/>(parameters) | Scenario| Possible Values | R Functions<br/> (`*` = d, p, q, r)|
+|:---|:-----|:--|:-|
+|X ~ Binomial(n,p)| X = number of "successes" in n independent trials; P("success") = p| 0, 1, ..., n | `*binom`|
+|X ~ Poisson(lambda)|X = count of "rare" events in an interval of time;<br/> mean count = lambda| 0, 1, 2, ...| `*pois`|
+|X ~ Geometric(p) |X = number of "failures" until first "success"; <br/>P("success") = p |0, 1, 2, ... |`*geom`|
+|X ~ Negative Binomial(r, p)|	X = number of "failures" until rth "success";<br/> P("success") = p|	0, 1, 2,...	|`*nbinom`|
+|X ~ Hypergeometric(N, k, n)|	X = number of "successes" in a sample of size n from an population of N items, k of which are "successes" and N-k are "failures"	|max(0, n-(N-k)),..., min(n, k)	|`*hyper`|
+
+#### <span style="color:salmon">Continuous Distributions</span>
+The R functions for several continuous distributions are:
+
+|Discrete Distribution<br/>(parameters) | Scenario| Possible Values | R Functions<br/> (`*` = d, p, q, r)|
+|:---|:-----|:--|:-|
+|X ~ Normal(mean, sd)|	"bell curve"|$(-\infty, \infty)$|`*norm`|
+|X ~ Uniform(min, max)| X = random number chosen from the interval [min, max]|[min, max]	|`*unif`|
+|X ~ Exponential(rate)|	X = time between events with given rate|	$[0, \infty)$|	`*exp`|
+|X ~ Chi-squared(df)|	Used in hypothesis testing (e.g. Chi-square tests)|	$[0, \infty)$|`*chisq`|
+|X ~ t(df)|	Used in hypothesis testing (e.g. t tests)|	$(-\infty, \infty)$|`*t`|
+|X ~ F(df1, df2)|	Used in hypothesis testing (e.g. F tests).|$[0, \infty)$|`*f`|
+
+### <span style="color:navy"> The Sampling Distribution of Sample Mean </span>
+
+In practice, we use the sample mean to estimate the unknown population mean. But, how can we know how well the sample mean estimates the population mean? 
+
+A simulation study is one method used by statisticians to examine the accuracy of sample statistics as estimators. 
+
+In today's lab, we are interested in how the sample mean behaves when we sample from various populations.
+
+#### <span style="color:salmon">Properties of the Sampling Distribution of Sample Mean</span>
+From theory, we know the following properties regarding the sampling distribution of the sample mean:
+
+1. The mean of all possible sample means of size `n` equals the mean of the population.
+$$\mu_{\bar x}=\mu_x$$
+2. The standard deviation of all possible sample means of size `n` equals the standard deviation of the population divided by the square root of the sample size.
+$$\sigma_{\bar x}=\frac{\sigma_x}{\sqrt{n}}$$
+3. **The Central Limit Theorem**: Draw an SRS of size $n$ from any population with mean $\mu$ and finite standard deviation $\sigma$. When $n$ is large, the sampling distribution of the sample mean $\bar X$ is approximately Normal:
+\[\bar X \stackrel{approx.}{\sim} N\left(\mu, \frac{\sigma}{\sqrt{n}}\right)\]
+
+    For most populations, a sample size of 30 is large enough for this approximation to be reliable.
+
+4. **The Law of Large Numbers**: Draw observations at random from any population with finite mean $\mu$. As the number of observations drawn increases, the mean $\bar X$ of the observed values tends to get closer and closer to the mean $\mu$ of the population.
+
+
+
+We will use simulation to illustrate these theories regarding the distribution of sample means. We will explore 4 distributions:
+
+1. Normal: $X\sim N(100,10)$
+2. Uniform: $X \sim \text{Uniform}(0,1)$.
+This is the uniform distribution on $(0,1)$. Values in this interval have the same chance to occur. In other words, probabilities of these values are evenly distributed on the interval.
+3. Exponential: $X\sim \text{Exp}(1)$
+This is the exponential distribution with mean 1. Exponential distributions are usually used to model waiting time for some event. For this distribution, the average waiting time is 1 time unit (second, minute, hour, etc.)
+4. Binomial: $X\sim \text{Bin}(10,0.1)$
+
+#### <span style="color:salmon">How do the distributions look like?</span>
+Before we start the lab, let us first take a look at the distributions, i.e. the population distribution.
+```{r,out.width="100%",fig.height=2.5}
+par(mfrow=c(1,4))
+w <- seq(60,140); plot(w,dnorm(w,100,10),type="l",lwd=2,col=4,main="Normal(100,10)",ylab="Density")
+x <- seq(0,1,0.01); plot(x,dunif(x),type="l",lwd=2,col=4,main="Uniform(0,1)",ylab="Density")
+y <- seq(0,10,0.1); plot(y,dexp(y),type="l",lwd=2,col=4,main="Exp(1)",ylab="Density")
+z <- seq(0,10); plot(z,dbinom(z,10,0.1),type="h",lwd=2,col=4,main="Bin(10,0.1)",ylab="Density")
+```
+
+
+#### <span style="color:green"> 1. Normal(100,10)</span>
+We know that if $X\sim N(\mu,\sigma)$, then the sample mean $\bar X$ always follows the normal distribution $N(\mu,\sigma/\sqrt{n})$. 
+
+The fact above is not related to the Central Limit Theorem. Nevertheless, let us use simulation to verify it.
+
+##### (1) Check the **normality** of $\bar X$.
+
+a. Generate 1000 random numbers from Normal(100,10).  
+b. Generate 1000 random samples of sizes 10, 30, and 100 respectively.
+c. Calculate the sample mean of each random sample for each sample size.
+d. Create a histogram of the sample means for each sample size.
+
+```{r,out.width="100%"}
+par(mfrow=c(2,2))
+m=1000   # Specify the number of samples
+
+x_bar1 <- rnorm(m,100,10)
+hist(x_bar1,xlim=c(70,130),)  # hist() is used to create a histogram
+
+n=10    # Sample size is 10
+x_bar10 = rep(0,m)
+for(i in 1:m){x_bar10[i]=mean(rnorm(n,100,10))}
+hist(x_bar10,xlim=c(70,130))
+
+n=30    # Sample size is 30
+x_bar30 = rep(0,m)
+for(i in 1:m){x_bar30[i]=mean(rnorm(n,100,10))}
+hist(x_bar30,xlim=c(70,130))
+
+n=100    # Sample size is 100
+x_bar100 = rep(0,m)
+for(i in 1:m){x_bar100[i]=mean(rnorm(n,100,10))}
+hist(x_bar100,xlim=c(70,130))
+```
+
+
+Apparently, no matter how large the sample size is, the distribution of the sample mean is always bell-shaped. Note that the spread is getting smaller as $n$ increases.
+
+##### (2) Verify that the mean of sample means is close to the population mean.
+```{r}
+mean(x_bar10)
+mean(x_bar30)
+mean(x_bar100)
+```
+All of the means of sample means are very close to the theoretical population mean, 100.
+
+##### (3) Calculate the standard error of sample means and compare it with the theoretical value $\sigma_x/\sqrt{n}$.
+```{r}
+# Sample size n=10
+sd(x_bar10)
+10/sqrt(10) # Theoretical value of the standard error
+
+# Sample size n=30
+sd(x_bar30)
+10/sqrt(30) # Theoretical value of the standard error
+
+# Sample size n=100
+sd(x_bar100)
+10/sqrt(100) # Theoretical value of the standard error
+```
+
+#### <span style="color:green"> 2. Uniform(0,1) </span>
+Now, I will illustrate how to do the simulation, create graphs, and calculate the summary statistics for the `Uniform(0,1)` distribution. 
+
+a. Generate 1000 observations from `Uniform(0,1)`. This is equivalent to 1000 samples of size 1. This shows the distribution of the population. 
+b. Generate 1000 random samples of sizes 10, 30, and 100 respectively. 
+c. Calculate the sample mean of each random sample for each sample size.
+d. Create a histogram of the sample means for each sample size.
+
+```{r,out.width="80%"}
+par(mfrow=c(2,2))
+m=1000              # Specify the number of samples
+x_bar=matrix(0,4,m) # x_bar will be used to store all the sample means
+
+n=c(1,10,30,100)      # Sample sizes are 10, 30, and 100. 
+for(i in 1:4){
+  for(j in 1:m){
+    x_bar[i,j]=mean(runif(n[i]))
+  }
+  hist(x_bar[i,],ylab="Relative Frequency",freq=F,main=paste("n=",n[i]),xlab="sample mean")
+}
+```
+
+To better compare the four histograms, we may let the four plots have the same x- and y-scale.
+```{r,out.width="100%",echo=T}
+par(mfrow=c(2,2))
+for(i in 1:4){
+  hist(x_bar[i,],ylab="Relative Frequency",freq=F,main=paste("n=",n[i]),
+       xlab="sample mean",xlim=c(0,1),ylim=c(0,15))
+}
+```
+
+Observations:
+
+1. The histogram of the sample mean of size 1 is flat and consistent to the distribution shape.
+2. As sample size `n` increases from 1 to 100, the histogram are more and more like normal. 
+3. As sample size `n` increases, the histogram is more and more concentrated around the mean.
+
+
+#### <span style="color:purple"> Exercise 1. Verify that the mean of sample means is close to the population mean. </span>
+Hint: The mean of Unif(0,1) is 0.5.
+
+```{r}
+set.seed(123)
+population_mean <- 0.5
+num_samples <- 1000
+sample_size <- c(10, 50, 100)
+
+```
+
+#### <span style="color:purple"> Exercise 2. Calculate the standard error of sample means and compare it with the theoretical value $\sigma_x/\sqrt{n}$. </span>
+
+Hint: The standard deviation of Unif(0,1) is 1/12.
+
+```{r}
+```
+
+#### <span style="color:green"> Visualize the Law of Large Numbers </span>
+
+```{r,fig.height=3}
+n <- 1000; x <- rnorm(n); x_bar <- rep(0,n)
+for(i in 1:n){x_bar[i] = mean(x[1:i])}
+plot(x_bar, type="l"); abline(h=0,col=2,lty=2)
+```
+
+#### <span style="color:purple"> Exercises 3. Exponential and Binomial Distributions </span>
+Now, for the Exp(1) and Binom(10,0.1) distributions, 
+
+a. Simulate 1000 random numbers with 4 sample sizes (1, 10, 30, 100)
+b. Calculate sample means
+c. Create histograms of the sample means
+d. Calculate mean and standard errors of sample means.
+
+To generate $n$ random numbers from Exp(1), use `rexp(n)`. 
+To generate $n$ random numbers from Binom(10,0.1), use `rbinom(n,10,0.1)`.
+
+```{r,out.width="80%"}
+par(mfrow=c(2,2))
+m=1000              # Specify the number of samples
+x_bar=matrix(0,4,m) # x_bar will be used to store all the sample means
+
+n=c(1,10,30,100)      # Sample sizes are 10, 30, and 100. 
+for(i in 1:4){
+  for(j in 1:m){
+    x_bar[i,j]=mean(runif(n[i]))
+  }
+  hist(x_bar[i,],ylab="Relative Frequency",freq=F,main=paste("n=",n[i]),xlab="sample mean")
+}
+
+```
+
+
+```{r,out.width="80%"}
+
+```
+

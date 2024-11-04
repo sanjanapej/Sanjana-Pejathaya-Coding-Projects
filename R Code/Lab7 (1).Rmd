@@ -1,0 +1,97 @@
+---
+title: "STAT 1060 Data Science Foundations"
+subtitle: "Lab 7 Two-Sample t procedures and Permutation Tests"
+author: "Student Version"
+date: "11/01/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=TRUE, out.width="70%", cache=T)
+```
+
+# Introduction
+
+```{r}
+file.choose('Anorexia.txt')
+```
+
+```{r}
+Anorexia <- read.table('/Users/SanjanaPejathaya/Downloads/Anorexia (1).txt', header = TRUE)
+dim(Anorexia)
+```
+
+```{r}
+Anorexia[sample(71,5),]
+```
+
+```{r}
+unique(Anorexia$Therapy)
+```
+
+# Two-Sample T-test
+
+Let $\mu_{F}$ and $\mu_{C}$ be the mean weight gain of the "Family" and "Control"
+treatments respectively. The hypothesis test we want to perform is as follows.
+
+\begin{equation}
+\begin{aligned}
+H_{0}: & \mu_{F} = \mu_{C} \\
+H_{a}: & \mu_{F} > \mu_{C}
+\end{aligned}
+\end{equation}
+
+or similarly stated
+
+\begin{equation}
+\begin{aligned}
+H_{0}: & \text{ The true mean weight gain is equal between the Family and Control
+treatments} \\
+H_{a}: & \text{ The true mean weight gain is greater on the Family treatment than 
+the Control}
+\end{aligned}
+\end{equation}
+
+```{r}
+Gains.Fam <- Anorexia$Y[ Anorexia$Therapy == "Family" ]
+Gains.Cont <- Anorexia$Y[ Anorexia$Therapy == "Control" ]
+```
+
+```{r}
+t.test(Gains.Fam, Gains.Cont, alternative="greater")
+```
+
+# Permutation test
+
+```{r}
+perm_fun <- function(x, nA, nB)
+{
+n <- nA + nB
+idx_b <- sample(1:n, nB)
+idx_a <- setdiff(1:n, idx_b)
+mean_diff <- mean(x[idx_b]) - mean(x[idx_a])
+return(mean_diff)
+}
+```
+
+```{r}
+Y1 = Anorexia$Y[ Anorexia$Therapy != "Cog/Behav"]
+Gains.Fam <- Anorexia$Y[ Anorexia$Therapy == "Family" ]
+Gains.Cont <- Anorexia$Y[ Anorexia$Therapy == "Control" ]
+nA = length(Gains.Fam)
+nB = length(Gains.Cont)
+```
+
+```{r}
+set.seed(100)
+# Call the perm_fun 1000 times to get 1000 mean differences
+perm_diffs <- rep(0, 1000)
+for (i in 1:1000) {
+perm_diffs[i] = perm_fun(Y1, nA, nB)
+}
+# Calculate the "p-value"
+mean_diff = mean(Gains.Fam)-mean(Gains.Cont)
+mean(perm_diffs > mean_diff)
+```
+
+

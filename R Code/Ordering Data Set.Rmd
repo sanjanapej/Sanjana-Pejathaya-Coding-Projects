@@ -1,0 +1,151 @@
+---
+title: "STAT 1060 Data Science Foundations"
+subtitle: "Homework 2 (Fall 2023)"
+#author: "Instructor Version"
+#date: "8/12/2022"
+output: 
+    #html_document
+    word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=TRUE)
+```
+
+## Instruction
+
+* Total points: 50
+* Make sure you show your code as well as the output of your code.
+
+Use the following command to load the data into your R session:
+```{r}
+babies <- read.table("http://www.math.montana.edu/shancock/data/Bwt.dat", header=TRUE, sep=",")
+```
+
+The variables are
+
+- `bwt`: baby's weight in ounces at birth
+- `gestation`: duration of pregnancy in days
+- `parity`: parity indicator (first born = 1, later birth = 0)
+- `age`: mother's age in years
+- `height`: mother's height in inches
+- `weight`: mother's weight in pounds (during pregnancy)
+- `smoke`: indicator for whether mother smokes (1=yes, 0=no)
+
+Check that the data were read in correctly:
+```{r}
+head(babies,3)
+dim(babies)	
+is.data.frame(babies)
+
+```
+#### Questions 1-6: Collect your solutions to Exercises 3-8 in Lab 2. 
+
+##### Exercise 3. (5 points) Order the `babies` data set by mother's smoking status and age.
+```{r, echo=TRUE}
+order_age = order(babies$age)
+babies1 = babies[order_age,]
+head(babies1)
+
+order_smoke = order(babies$smoke)
+babies1 = babies[order_smoke,]
+head(babies1)
+
+```
+##### Exercise 4. (5 points) Sort the `babies` data set by mother's height in descending order.
+
+``` {r, echo = TRUE}
+sort_height = order(-babies$height)
+babies1 = babies[sort_height,]
+head(babies1)
+
+
+```
+
+
+##### Exercise 5. (5 points) Create a new data set which only contains two columns: `height` and `weight`. Call it `babies_sub2`.
+
+``` {r, echo = TRUE}
+
+babies_sub2 = babies[,c(5,6)]
+head(babies_sub2)
+```
+
+
+##### Exercise 6. (5 points) Select all the observations with mother's height that is greater than 68 inches.
+``` {r, echo = TRUE}
+babies_height = babies[babies$height > 68,]
+head(babies_height)
+
+```
+
+##### Exercise 7. (5 points) Calculate the five-number summary of `bwt` in the babies dataset.
+
+``` {r, echo = TRUE}
+
+quantile(babies[['bwt']])
+
+```
+
+##### Exercise 8. (5 points) Find the mean and the median of `weight`. Are they close to each other?
+
+```{r, echo = TRUE}
+mean(babies[['weight']])
+median(babies[['weight']])
+```
+Yes. The mean and median are quite close together, with a difference of 342787 units. 
+
+
+#### Question 7 (4 points) Create a horizontal boxplot for `bwt`
+
+``` {r, echo = TRUE}
+
+boxplot(babies[['bwt']], horizontal = TRUE, data = babies[['bwt']], main = "Baby's Weight In Ounces At Birth, (bwt)", xLab = "bwt", xlab = 'bwt', col = 'pink')
+
+```
+
+#### Question 8 (6 points) Calculate 10% trimmed mean and the median absolute deviation from the median for `bwt`.
+
+``` {r , echo = TRUE}
+mean(babies[['bwt']], trim=0.1)
+mad(babies[['bwt']])
+```
+
+#### Question 9 (5 points) Create a frequency table for `bwt`.
+Requirements:
+
+* There should be 15 intervals
+* The intervals should be left-closed
+
+``` {r, echo = TRUE}
+
+
+
+breaks = seq(from=min(babies1[['bwt']]/1e6),
+to=max(babies1[['bwt']])/1e6, length=15)
+bwt_binned = cut(babies1[['bwt']]/1e6, breaks=breaks,
+left=TRUE, # indicating the intervals should be closed on the right (and open on the left)
+include.lowest=TRUE)
+as.data.frame(table(bwt_binned))
+
+```
+
+
+#### Question 10 (5 points) Create a histogram for `bwt`.
+
+Requirements:
+
+1. Use the `breaks` defined in Question 9
+2. Give a title "Baby Weights".
+3. The x-axis label should be "Baby Weight (in ounce)"
+
+```{r, echo=TRUE}
+hist(babies1[['bwt']]/1e6, breaks=breaks,
+xlab='Baby Weight (in ounce)',
+main='Baby Weights', col = 'pink')
+
+
+```
+
+
+
