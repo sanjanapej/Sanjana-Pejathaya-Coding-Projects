@@ -1,0 +1,37 @@
+The goal of this assignment is to learn how to implement Stack and Queue ADTs from scratch, using a Linked List data structure.
+After I implemented these two ADTs, I will use them to solve mazes. I will traverse the cells of the maze using either the Stack or the Queue. 
+
+MiniList Class:
+
+This class is a custom implementation of a linked list, designed to support operations like addFirst, addLast, getFirst, removeFirst, and isEmpty.
+It serves as the underlying data structure for both MyStack and MyQueue by providing the essential list operations needed for stack and queue behavior.
+Key Methods:
+addFirst(T data): Adds an element at the beginning of the list.
+addLast(T data): Adds an element at the end of the list.
+getFirst(): Retrieves the first element without removing it.
+removeFirst(): Removes and returns the first element.
+isEmpty(): Checks if the list has no elements.
+MyStack Class:
+
+This class implements a stack (LIFO structure) using MiniList as its internal storage.
+Key Methods:
+push(T data): Adds an element to the top of the stack.
+pop(): Removes and returns the element at the top of the stack. It throws NoSuchElementException if the stack is empty.
+peek(): Returns the top element without removing it, throwing NoSuchElementException if the stack is empty.
+isEmpty(): Checks if the stack is empty by calling isEmpty() on the MiniList.
+MyQueue Class:
+
+This class implements a queue (FIFO structure) using MiniList as its internal storage.
+Key Methods:
+enqueue(T data): Adds an element to the end of the queue.
+dequeue(): Removes and returns the element at the front of the queue, throwing NoSuchElementException if the queue is empty.
+front(): Returns the front element without removing it, also throwing NoSuchElementException if the queue is empty.
+isEmpty(): Checks if the queue is empty by calling isEmpty() on the MiniList.
+JUnit Tests:
+
+The JUnit tests verify the functionality and robustness of MyStack and MyQueue classes.
+Tests cover typical operations (e.g., push, pop, enqueue, dequeue) as well as edge cases, including handling exceptions when attempting to access elements in an empty stack or queue.
+Key Fixes Implemented
+Corrected the exception handling in pop, peek, dequeue, and front methods to use NoSuchElementException for empty data structures.
+Refined isEmpty() implementations to accurately check the state of the underlying MiniList.
+This code collectively provides a reliable foundation for stack and queue operations while also addressing edge cases through comprehensive testing.
