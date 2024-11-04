@@ -1,0 +1,35 @@
+Sanjana Pejathaya
+
+
+Reflection on Coding Challenges and Resolutions
+During the development of my MiniList, MyStack, and MyQueue classes in Java, I faced several issues that tested my debugging skills and deepened my understanding of data structures and exception handling. Below, I outline the main problems I encountered and the solutions I implemented.
+
+1. MiniList Class Issues
+Issue with getFirst() and removeFirst() Methods: In my initial implementation of the MiniList class, I encountered failing JUnit tests for the getFirstException and removeFirstException methods. The methods were supposed to throw exceptions when the list was empty, but I was throwing IllegalStateException instead of NoSuchElementException.
+
+Fix: I corrected the exception type in both methods to throw NoSuchElementException, which is more appropriate in the context of trying to retrieve or remove an element from an empty list.
+
+Improving the isEmpty() Method: Initially, I implemented the isEmpty() method to return whether the first element is null. However, this did not correctly reflect the list's emptiness in all cases, leading to misleading results in JUnit tests.
+
+Fix: I modified the isEmpty() method to return head == null, which accurately checks if the list is empty by confirming that there are no nodes present.
+
+2. MyStack Class Issues
+Error in isEmpty() Implementation: The isEmpty() method in the MyStack class erroneously relied on checking if list.getFirst() was null, which could lead to incorrect assumptions about the stack's state.
+
+Fix: I updated the isEmpty() method to check the list's state correctly using list.isEmpty(), which is now a reliable method in the MiniList class.
+
+Problems with pop() and peek() Methods: Both methods were set to throw an IllegalStateException when the stack was empty instead of the appropriate NoSuchElementException. This mismatch led to failing JUnit tests.
+
+Fix: I adjusted the exception handling in both methods to throw NoSuchElementException, aligning them with expected behaviors outlined in the tests.
+
+3. MyQueue Class Issues
+Incorrect Exception Handling: Similar to the MyStack class, both the dequeue() and front() methods were incorrectly set to throw IllegalStateException for empty queue scenarios, which conflicted with the JUnit tests expecting NoSuchElementException.
+
+Fix: I revised the exception handling in both methods to throw NoSuchElementException, ensuring that they correctly signal an attempt to access elements in an empty queue.
+
+Redundant Logic in isEmpty(): The isEmpty() method initially checked the first element of the list directly. This method could have been simplified.
+
+Fix: I refined it to directly call the isEmpty() method of the MiniList class, improving clarity and consistency across my data structures.
+
+Conclusion
+Through these challenges, I gained valuable insights into proper exception handling, the importance of testing for edge cases, and the significance of using meaningful exception types. Each fix not only resolved the immediate issues but also strengthened the overall design and robustness of my data structures. Moving forward, I will continue to apply these lessons to ensure my code adheres to best practices and effectively handles all scenarios.
