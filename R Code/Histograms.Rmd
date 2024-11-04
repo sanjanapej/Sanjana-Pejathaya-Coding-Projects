@@ -1,22 +1,3 @@
----
-title: "STAT 1060 Data Science Foundations"
-subtitle: "Homework 3"
-#author: "Instructor Version"
-#date: "8/12/2022"
-output: 
-    html_document
-    #word_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval=TRUE)
-```
-
-## Instruction
-
-* Total points: 50
-* Make sure you show your code as well as the output of your code.
-
 #### Questions 1-6: Collect your solutions to Exercises 1-6 in Lab 3. 
 
 We will conduct an exploratory data analysis using the WHO life expectancy data set, which contains data of representative health-related factors from 2000 to 2015 for 193 countries. 
