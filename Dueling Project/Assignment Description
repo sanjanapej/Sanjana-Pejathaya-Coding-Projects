@@ -1,0 +1,21 @@
+Problem Statement
+Background Story
+You are attending Hogwarts School of Witchcraft and Wizardry.
+After you got yourself into some unfortunate business with Peeves (a poltergeist whose sole existence causes mischief and chaos) and a suit of armor, Professor Lockhart, the current Defense against the Dark Arts professor has given you detention and asked you to oversee a dueling event - as he needs to answer some urgent fan mail and cannot supervise the students himself.
+Harry Potter and Hermione Granger are eager to practice some defense spells and are the first students to show up.
+
+Context
+Duelers can cast one of three spells:
+
+Protego: Shield charm, protects the spell caster with an invisible shield that reflects spells.
+Expelliarmus: Disarming charm, knocks the victim's weapon out of their hands.
+Stupefy: Stunning spell, renders its target unconscious if the spell's impact is 10.
+Logic
+When a spell is cast, the strength of the spell determines the impact on the opponent.
+The strength (impact) is measured on a scale of 1 to 10, with 1 the least and 10 the most impact.
+The impact is computed every time a spell is cast.
+Each duel should involve at most six spells, this should be checked when determining the winner. If it involves more than six spells, the duel should be declared as invalid.
+The winner of the duel is the dueler who was impacted the least and is not unconscious.
+If a dueler is hit by a stunning spell (Stupefy) with an impact of 10, the opponent automatically wins.
+
+Grade Earned: 24/25
