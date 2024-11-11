@@ -1,0 +1,15 @@
+The Mines of Moria
+For simplicity, imagine Moria as a 2D array of integers (a maze).
+The maze has a defined start and end point
+
+This assignment has two parts!
+
+Use an enum Cell to represent the maze's properties: WALL = 0, PATH = 1, TRACK = 2.
+Maze input: The program accepts a maze in the form of a 2D array.
+Recursive function: Write a recursive method named findPath() that navigates the maze from the start point to the end point.
+Path tracking: findPath() should mark the path it has taken. If findPath() hits a dead end (no more open paths), print an error message.
+Output: Once a path is found or if no path is possible, the program should display the maze with the path marked. If no path is found, it should indicate so.
+Translate this game to a simple GUI (you may use the JPanel below) and add your own customizations.
+Comments and documentation: Include comments explaining your code and the logic behind your recursive method.
+
+Grade Received: 22/25
