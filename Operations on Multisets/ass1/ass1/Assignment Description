@@ -1,0 +1,13 @@
+In this assignment you will see the implementation of a Bag data type. Bag is an unordered collection of items. If you are familiar with the idea of a Set – then Bag is very similar to a Set: except in a Set all elements are unique, and in a Bug an element may appear more than once. Multiset is another name for a Bag.
+Example: 
+{1,2,1,3} is a bag.  
+{1,2,3} is also a bag that happens to be a set.
+
+Bags also resemble lists, but order in a bag (and a set) is unimportant.
+Example: 
+{1,2,1} and {1,1,2} are equal as bags, but 
+[1,2,1] and [1,1,2] are different as lists.
+
+Multisets (Bags) are widely used in different areas of Computer Science. You will meet them again in your Database courses. The entire theory of Relational Databases is based on the Relational Algebra of Bags.
+
+
